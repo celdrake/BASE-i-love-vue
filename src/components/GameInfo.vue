@@ -1,14 +1,24 @@
 <template>
   <div class="game-info">
-    game info
+    <h3>Memory Matrix</h3>
+    <div class="game-info__actions">
+      <button @click="restartGame">
+        New game
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
 
-  export default {
-    name: 'GameInfo',
-  };
+export default {
+  name: 'GameInfo',
+  methods: {
+    restartGame() {
+      this.$eventHub.$emit('new-game');
+    },
+  },
+};
 
 </script>
 

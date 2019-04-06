@@ -1,5 +1,6 @@
 <template>
   <div class="game-box">
+    {{ currentTime }}
     <div class="game-box__row" v-for="(row, rowIndex) in matrix" :key="rowIndex">
       <div class="game-box__tile" v-for="(cell, cellIndex) in row" :key="cellIndex">
         {{ cell.content }}
@@ -14,6 +15,7 @@ export default {
   name: 'GameBox',
   data() {
     return {
+      currentTime: Date.now(),
       matrix: this.initMatrix(4),
     };
   },
@@ -30,6 +32,7 @@ export default {
         }
         matrix.push(rowColumns);
       }
+      this.currentTime = Date.now();
       return matrix;
     },
   },
