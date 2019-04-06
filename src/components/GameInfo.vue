@@ -15,7 +15,7 @@ export default {
   name: 'GameInfo',
   methods: {
     restartGame() {
-      console.log('Should restart the game');
+      this.$store.dispatch('restartGame');
     },
   },
 };
