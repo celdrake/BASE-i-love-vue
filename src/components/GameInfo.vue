@@ -15,7 +15,7 @@ export default {
   name: 'GameInfo',
   methods: {
     restartGame() {
-      this.$eventHub.$emit('new-game');
+      console.log('Should restart the game');
     },
   },
 };

@@ -1,6 +1,5 @@
 <template>
   <div class="game-box">
-    {{ currentTime }}
     <div class="game-box__row" v-for="(row, rowIndex) in matrix" :key="rowIndex">
       <div class="game-box__tile" v-for="(cell, cellIndex) in row" :key="cellIndex">
         {{ cell.content }}
@@ -11,33 +10,14 @@
 
 <script>
 
+import { mapState } from 'vuex';
+
 export default {
   name: 'GameBox',
-  data() {
-    return {
-      currentTime: Date.now(),
-      matrix: this.initMatrix(4),
-    };
-  },
-  methods: {
-    initMatrix(gameSize) {
-      const matrix = [];
-      for (let row = 0; row < gameSize; row += 1) {
-        const rowColumns = [];
-        for (let col = 0; col < gameSize; col += 1) {
-          rowColumns.push({
-            content: 'empty', // empty, pattern, success, error
-            display: true,
-          });
-        }
-        matrix.push(rowColumns);
-      }
-      this.currentTime = Date.now();
-      return matrix;
-    },
-  },
-  created() {
-    this.$eventHub.$on('new-game', this.initMatrix);
+  computed: {
+    ...mapState({
+      matrix: (state) => state.matrix,
+    }),
   },
 };
 
