@@ -1,5 +1,5 @@
 <template>
-  <div class="game-tile" :class="tileClasses" />
+  <div class="game-tile" :class="tileClasses" @click="tileClick" />
 </template>
 
 <script>
@@ -10,13 +10,25 @@ export default {
       type: Object,
       required: true,
     },
+    isGameStarted: {
+      type: Boolean,
+      required: true,
+    },
   },
   computed: {
     tileClasses() {
       return {
         isRevealed: this.tile.display,
-        hasPattern: this.tile.content === 'pattern',
+        [`has-${this.tile.content}`]: true,
       };
+    },
+  },
+  methods: {
+    tileClick() {
+      if (!this.isGameStarted) {
+        return;
+      }
+      this.$store.dispatch('revealTile', this.tile);
     },
   },
 };
@@ -33,9 +45,17 @@ export default {
     border: 2px solid gray;
     border-collapse: collapse;
 
-    &.hasPattern {
-      &.isRevealed {
+    &.isRevealed {
+      &.has-pattern {
         background-color: blue;
+      }
+      &.has-success,
+      &.has-tick {
+        background-color: limegreen;
+      }
+      &.has-error,
+      &.has-cross {
+        background-color: crimson;
       }
     }
   }

@@ -41,6 +41,8 @@ const initMatrix = (gameSize) => {
 
 const matrixState = {
   gameSize: GAME_SIZE,
+  revealedTiles: 0,
+  successTiles: 0,
   matrix: initMatrix(GAME_SIZE),
 };
 
@@ -74,10 +76,34 @@ export default new Vuex.Store({
       */
       commit('updateMatrix', updatedMatrix);
     },
+    revealTile({ state, commit }, tile) {
+      if (state.revealedTiles === state.gameSize) {
+        return;
+      }
+      const isSuccess = tile.content === 'pattern';
+      const totalRevealed = state.revealedTiles + 1;
+      const isEndGame = totalRevealed === state.gameSize;
+      let newContent;
+      if (isSuccess) {
+        newContent = isEndGame ? 'tick' : 'success';
+      } else {
+        newContent = isEndGame ? 'cross' : 'error';
+      }
+      tile.content = newContent;
+      tile.display = true;
+      commit('setRevealedTiles', {
+        revealed: totalRevealed,
+        success: state.successTiles + (isSuccess ? 1 : 0)
+      });
+    },
   },
   mutations: {
     updateMatrix(state, matrix) {
       state.matrix = matrix;
+    },
+    setRevealedTiles(state, { revealed, success }) {
+      state.revealedTiles = revealed;
+      state.successTiles = success;
     },
   },
 })

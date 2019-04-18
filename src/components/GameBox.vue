@@ -1,7 +1,8 @@
 <template>
   <div class="game-box">
     <div class="game-box__row" v-for="(row, rowIndex) in matrix" :key="rowIndex">
-      <game-tile v-for="(cell, cellIndex) in row" :key="cellIndex" :tile="cell" />
+      <game-tile v-for="(cell, cellIndex) in row" :key="cellIndex"
+                 :tile="cell" :is-game-started="isGameStarted" />
     </div>
   </div>
 </template>
@@ -21,6 +22,10 @@ export default {
     ...mapState({
       matrix: (state) => state.matrix,
     }),
+    isGameStarted() {
+      // TODO needs to come from the store
+      return true;
+    },
   },
 };
 
