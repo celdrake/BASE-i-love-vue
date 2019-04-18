@@ -24,6 +24,6 @@ export default {
 
 <style lang="scss">
   .game-info {
-
+    margin: 2em auto;
   }
 </style>
