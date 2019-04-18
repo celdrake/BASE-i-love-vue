@@ -1,5 +1,9 @@
 <template>
-  <div class="game-tile" :class="tileClasses" @click="tileClick" />
+  <div class="game-tile" :class="tileClasses" @click="tileClick">
+    <span class="game-tile__symbol" :class="{'hasSymbol': tile.symbol !== null}">
+      {{ symbol }}
+    </span>
+  </div>
 </template>
 
 <script>
@@ -22,6 +26,20 @@ export default {
         [`has-${this.tile.content}`]: true,
       };
     },
+    symbol() {
+      switch(this.tile.symbol) {
+        case 'guessed':
+          return '🤩';
+        case 'missed':
+          return '🙅';
+        case 'wrong':
+          return '🤦';
+        case 'passed':
+        default:
+          // Return a symbol even for empty cells, to keep the same space
+          return '👍';
+      }
+    },
   },
   methods: {
     tileClick() {
@@ -38,24 +56,34 @@ export default {
 <style lang="scss">
 
   .game-tile {
-    padding: 1.5em;
-    background: #3a2a25;
+    padding: 4em;
+    background-color: #3a2a25;
     color: white;
     margin: 0;
     border: 2px solid gray;
     border-collapse: collapse;
 
     &.isRevealed {
+      pointer-events: none;
+      // State while the game is in progress
       &.has-pattern {
-        background-color: blue;
+        background-color: #416dea;
+        visibility: visible;
       }
-      &.has-success,
-      &.has-tick {
-        background-color: limegreen;
-      }
-      &.has-error,
-      &.has-cross {
+      &.has-error {
         background-color: crimson;
+        visibility: visible;
+      }
+      &.has-success {
+        background-color: limegreen;
+        visibility: visible;
+      }
+    }
+    &__symbol {
+      font-size: 1.5em;
+      visibility: hidden;
+      &.hasSymbol {
+        visibility: visible;
       }
     }
   }
