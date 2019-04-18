@@ -31,6 +31,7 @@ const initMatrix = (gameSize) => {
       rowColumns.push({
         content: 'empty', // empty, pattern, success, error
         display: true,
+        symbol: 'none',  // for the end game bonanza!
       });
     }
     matrix.push(rowColumns);
@@ -49,16 +50,16 @@ const matrixState = {
 export default new Vuex.Store({
   state: matrixState,
   actions: {
-    restartGame({ commit, dispatch }) {
+    restartGame({commit, dispatch}) {
       const newMatrix = initMatrix(GAME_SIZE);
       commit('updateMatrix', newMatrix);
       setTimeout(() => {
         dispatch('setPatternVisibility', false);
       }, 2500);
     },
-    setPatternVisibility({ state, commit }, doShow) {
+    setPatternVisibility({state, commit}, doShow) {
       // Opción 1: usando Array.map
-      const updatedCell = (cell) => Object.assign({}, cell, { display: doShow });
+      const updatedCell = (cell) => Object.assign({}, cell, {display: doShow});
       const updatedMatrix = state.matrix.map((row) => {
         return row.map(updatedCell);
       });
@@ -76,25 +77,70 @@ export default new Vuex.Store({
       */
       commit('updateMatrix', updatedMatrix);
     },
-    revealTile({ state, commit }, tile) {
+    revealTile({state, commit, dispatch}, tile) {
       if (state.revealedTiles === state.gameSize) {
         return;
       }
+      // Updating the tile content and make it displayed
       const isSuccess = tile.content === 'pattern';
-      const totalRevealed = state.revealedTiles + 1;
-      const isEndGame = totalRevealed === state.gameSize;
-      let newContent;
-      if (isSuccess) {
-        newContent = isEndGame ? 'tick' : 'success';
-      } else {
-        newContent = isEndGame ? 'cross' : 'error';
-      }
-      tile.content = newContent;
+      tile.content = isSuccess ? 'success' : 'error';
       tile.display = true;
+
+      // Increasing the number of tiles revealed
+      const totalRevealed = state.revealedTiles + 1;
+
+      // If the game has ended, we display the full board result
+      const isEndGame = totalRevealed === state.gameSize;
+      if (isEndGame) {
+        dispatch('onEndGame');
+      }
       commit('setRevealedTiles', {
         revealed: totalRevealed,
-        success: state.successTiles + (isSuccess ? 1 : 0)
+        success: state.successTiles + (isSuccess ? 1 : 0),
       });
+    },
+    onEndGame({state, commit}) {
+      // We'll update the content each tile at a time, to demonstrate a nice visual effect
+      const timer = 500;
+
+      const cellRevealer = (row, column) => {
+        const currentTile = state.matrix[row][column];
+        let cellSymbol;
+        if (currentTile.content === 'empty') {
+          cellSymbol = 'none';
+        } else if (currentTile.content === 'success') {
+          cellSymbol = 'guessed';
+        } else if (currentTile.content === 'error') {
+          cellSymbol = 'wrong';
+        } else if (currentTile.content === 'pattern') {
+          cellSymbol = 'missed';
+        }
+
+        commit('updateTile', {
+          row,
+          column,
+          updatedTile: Object.assign({}, currentTile, {
+            display: true,
+            symbol: cellSymbol,
+          }),
+        });
+
+        // Now we need to check if there are more tiles to update
+        const nextCol = (column + 1) % 4;
+        let nextRow = row;
+        if (nextCol === 0) {
+          nextRow += 1;
+        }
+
+        if (nextRow < state.gameSize) {
+          // Reveal the next tile
+          setTimeout(() => {
+            cellRevealer(nextRow, nextCol);
+          }, timer);
+        }
+      };
+      // Reveal the first tile to start the process
+      cellRevealer(0, 0);
     },
   },
   mutations: {
@@ -104,6 +150,14 @@ export default new Vuex.Store({
     setRevealedTiles(state, { revealed, success }) {
       state.revealedTiles = revealed;
       state.successTiles = success;
+    },
+    updateTile(state, { row, column, updatedTile }) {
+      // TODO hacer "mal" al principio para demostrar que no se puede
+      // modificar la matrix directamente
+      const updatedMatrix = Object.assign({}, state.matrix);
+      updatedMatrix[row][column] = updatedTile;
+
+      state.matrix = updatedMatrix;
     },
   },
 })
